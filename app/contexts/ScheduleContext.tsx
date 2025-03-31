@@ -142,7 +142,38 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
   };
 
   const removeEvent = (id: string) => {
-    setEvents((prev) => prev.filter((event) => event.id !== id));
+    // Find the event to be removed
+    const eventToRemove = events.find(event => event.id === id);
+    
+    if (eventToRemove) {
+      // First, remove the event
+      setEvents((prev) => prev.filter((event) => event.id !== id));
+      
+      // Then, find any accepted requests that might be associated with this event (matching day/time slot)
+      // This will help keep the system consistent if a user deletes an event that was from an accepted request
+      setRequests((prev) => 
+        prev.map((request) => {
+          // Check if this is an accepted request with a slot that matches the removed event
+          if (request.status === 'accepted' && request.selectedSlot) {
+            const matchingSlot = request.slots.find(
+              slot => 
+                slot.dayIndex === eventToRemove.day && 
+                slot.hourIndex === eventToRemove.start
+            );
+            
+            // If there's a matching slot, mark the request as declined
+            if (matchingSlot) {
+              return { ...request, status: 'declined' };
+            }
+          }
+          
+          return request;
+        })
+      );
+    } else {
+      // If event wasn't found, just remove it from the events array
+      setEvents((prev) => prev.filter((event) => event.id !== id));
+    }
   };
 
   // Request management functions
