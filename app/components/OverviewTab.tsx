@@ -8,7 +8,7 @@ import { useSchedule } from '../contexts/ScheduleContext';
 const HOURS = Array.from({ length: 12 }, (_, i) => i + 8); // 8AM to 7PM
 
 export default function OverviewTab() {
-  const { events } = useSchedule();
+  const { events, isClient } = useSchedule();
   
   // Calculate the dates for the current week
   const today = new Date();
@@ -24,6 +24,8 @@ export default function OverviewTab() {
   
   // Function to render the content of a time slot
   const renderTimeSlot = (dayIndex: number, hour: number) => {
+    if (!isClient) return null; // Don't render anything on server
+
     const event = getEventForSlot(dayIndex, hour);
     
     if (!event) {
@@ -31,7 +33,7 @@ export default function OverviewTab() {
     }
     
     return (
-      <div className={`h-full w-full flex items-center justify-center text-xs font-medium ${
+      <div className={`h-full w-full flex items-center justify-center text-xs font-medium text-center px-1 ${
         event.confirmed ? 'bg-primary-500 text-white' : 'bg-yellow-200 text-yellow-800 border border-yellow-300'
       }`}>
         {event.title}
@@ -66,7 +68,7 @@ export default function OverviewTab() {
                   key={dayIndex}
                   className="h-12 rounded-md flex items-center justify-center transition-colors bg-gray-100 p-0 overflow-hidden"
                 >
-                  {renderTimeSlot(dayIndex, hour)}
+                  {isClient && renderTimeSlot(dayIndex, hour)}
                 </div>
               ))}
             </React.Fragment>

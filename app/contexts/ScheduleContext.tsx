@@ -38,6 +38,7 @@ interface ScheduleContextType {
   addRequest: (request: Omit<Request, 'id'>) => void;
   updateRequest: (id: string, update: Partial<Request>) => void;
   removeRequest: (id: string) => void;
+  isClient: boolean;
 }
 
 // Initial mock data for events
@@ -77,26 +78,31 @@ const initialRequests: Request[] = [
 const ScheduleContext = createContext<ScheduleContextType | undefined>(undefined);
 
 export function ScheduleProvider({ children }: { children: ReactNode }) {
+  const [isClient, setIsClient] = useState(false);
+  
   // Initialize state from localStorage if available, otherwise use initial data
-  const [events, setEvents] = useState<ScheduleEvent[]>(() => {
-    if (typeof window !== 'undefined') {
-      const savedEvents = localStorage.getItem('quickSchedule_events');
-      return savedEvents ? JSON.parse(savedEvents) : initialEvents;
-    }
-    return initialEvents;
-  });
+  const [events, setEvents] = useState<ScheduleEvent[]>(initialEvents);
+  const [requests, setRequests] = useState<Request[]>(initialRequests);
 
-  const [requests, setRequests] = useState<Request[]>(() => {
-    if (typeof window !== 'undefined') {
-      const savedRequests = localStorage.getItem('quickSchedule_requests');
-      return savedRequests ? JSON.parse(savedRequests) : initialRequests;
-    }
-    return initialRequests;
-  });
-
-  // Save to localStorage when state changes
+  // Set isClient true after component mounts
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    setIsClient(true);
+    
+    // Now that we're on the client, we can load from localStorage
+    const savedEvents = localStorage.getItem('quickSchedule_events');
+    if (savedEvents) {
+      setEvents(JSON.parse(savedEvents));
+    }
+    
+    const savedRequests = localStorage.getItem('quickSchedule_requests');
+    if (savedRequests) {
+      setRequests(JSON.parse(savedRequests));
+    }
+  }, []);
+
+  // Save to localStorage when state changes (only on client)
+  useEffect(() => {
+    if (isClient) {
       localStorage.setItem('quickSchedule_events', JSON.stringify(events, (key, value) => {
         // Handle Date objects during JSON serialization
         if (key === 'createdAt' && value instanceof Date) {
@@ -105,10 +111,10 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
         return value;
       }));
     }
-  }, [events]);
+  }, [events, isClient]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (isClient) {
       localStorage.setItem('quickSchedule_requests', JSON.stringify(requests, (key, value) => {
         // Handle Date objects during JSON serialization
         if (key === 'createdAt' && value instanceof Date) {
@@ -117,7 +123,7 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
         return value;
       }));
     }
-  }, [requests]);
+  }, [requests, isClient]);
 
   // Event management functions
   const addEvent = (event: Omit<ScheduleEvent, 'id'>) => {
@@ -160,14 +166,28 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
             );
             
             if (slotInfo && slotInfo.dayIndex !== undefined && slotInfo.hourIndex !== undefined) {
+              // Look for existing pending event with this sender and slot
+              const pendingEvent = events.find(event => 
+                event.day === slotInfo.dayIndex && 
+                event.start === slotInfo.hourIndex && 
+                !event.confirmed && 
+                event.title.includes(request.sender)
+              );
+              
               // Add an event for the accepted meeting
-              addEvent({
-                title: `Meeting with ${request.sender}`,
-                day: slotInfo.dayIndex,
-                start: slotInfo.hourIndex,
-                end: slotInfo.hourIndex + 1, // 1 hour meeting by default
-                confirmed: true
-              });
+              // If there's a pending event, update it to confirmed
+              // Otherwise create a new confirmed event
+              if (pendingEvent) {
+                updateEvent(pendingEvent.id, { confirmed: true });
+              } else {
+                addEvent({
+                  title: `Meeting with ${request.sender}`,
+                  day: slotInfo.dayIndex,
+                  start: slotInfo.hourIndex,
+                  end: slotInfo.hourIndex + 1, // 1 hour meeting by default
+                  confirmed: true
+                });
+              }
             }
           }
           
@@ -193,6 +213,7 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
         addRequest,
         updateRequest,
         removeRequest,
+        isClient
       }}
     >
       {children}

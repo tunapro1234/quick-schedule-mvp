@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 import { useSchedule } from '../contexts/ScheduleContext';
 
 export default function RequestsView() {
-  const { requests, updateRequest } = useSchedule();
+  const { requests, updateRequest, isClient } = useSchedule();
   const [selectedSlots, setSelectedSlots] = useState<Record<string, string>>({});
   
   const handleAccept = (requestId: string) => {

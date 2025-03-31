@@ -9,9 +9,10 @@ import { useSchedule } from '../contexts/ScheduleContext';
 const HOURS = Array.from({ length: 12 }, (_, i) => i + 8); // 8AM to 7PM
 
 export default function PlanningTab() {
-  const { events, addRequest, addEvent } = useSchedule();
+  const { events, addRequest, addEvent, isClient } = useSchedule();
   const [step, setStep] = useState<'email' | 'userB' | 'compare' | 'confirm'>('email');
   const [recipientEmail, setRecipientEmail] = useState('');
+  const [meetingName, setMeetingName] = useState('');
   const [userBAvailableSlots, setUserBAvailableSlots] = useState<string[]>([]);
   const [overlappingSlots, setOverlappingSlots] = useState<string[]>([]);
   const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
@@ -72,6 +73,8 @@ export default function PlanningTab() {
       return;
     }
     
+    const finalMeetingName = meetingName.trim() || `Meeting with ${recipientEmail}`;
+    
     // Format the selected slots for the request
     const formattedSlots = selectedSlots.map(slotId => {
       const [dayIndex, hourIndex] = slotId.split('-').map(Number);
@@ -101,9 +104,9 @@ export default function PlanningTab() {
     selectedSlots.forEach(slotId => {
       const [dayIndex, hourIndex] = slotId.split('-').map(Number);
       
-      // Add event to calendar
+      // Add event to calendar with the custom meeting name
       addEvent({
-        title: `Meeting with ${recipientEmail}`,
+        title: finalMeetingName,
         day: parseInt(dayIndex),
         start: parseInt(hourIndex),
         end: parseInt(hourIndex) + 1, // 1 hour meeting by default
@@ -159,11 +162,14 @@ export default function PlanningTab() {
       <div>
         <h2 className="text-xl font-semibold text-gray-800 mb-4">Schedule a Meeting</h2>
         <p className="text-gray-600 mb-6">
-          Enter the email address of the person you want to schedule with.
+          Enter the email address of the person you want to schedule with and a name for the meeting.
         </p>
         
         <form onSubmit={handleEmailSubmit} className="max-w-md">
-          <div className="mt-1 flex rounded-md shadow-sm">
+          <div className="mb-4">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              Recipient Email
+            </label>
             <input
               type="email"
               name="email"
@@ -175,6 +181,22 @@ export default function PlanningTab() {
               required
             />
           </div>
+          
+          <div className="mb-4">
+            <label htmlFor="meeting-name" className="block text-sm font-medium text-gray-700 mb-1">
+              Meeting Name (optional)
+            </label>
+            <input
+              type="text"
+              name="meeting-name"
+              id="meeting-name"
+              className="focus:ring-primary-500 focus:border-primary-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300 border p-2"
+              placeholder="Weekly Check-in"
+              value={meetingName}
+              onChange={(e) => setMeetingName(e.target.value)}
+            />
+          </div>
+          
           <div className="mt-4">
             <button
               type="submit"
@@ -293,6 +315,7 @@ export default function PlanningTab() {
             type="button"
             onClick={() => {
               setRecipientEmail('');
+              setMeetingName('');
               setUserBAvailableSlots([]);
               setOverlappingSlots([]);
               setSelectedSlots([]);
