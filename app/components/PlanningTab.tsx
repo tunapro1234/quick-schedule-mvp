@@ -107,9 +107,9 @@ export default function PlanningTab() {
       // Add event to calendar with the custom meeting name
       addEvent({
         title: finalMeetingName,
-        day: parseInt(dayIndex),
-        start: parseInt(hourIndex),
-        end: parseInt(hourIndex) + 1, // 1 hour meeting by default
+        day: dayIndex,
+        start: hourIndex,
+        end: hourIndex + 1, // 1 hour meeting by default
         confirmed: false // This is a pending event
       });
     });
