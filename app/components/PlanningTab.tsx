@@ -4,18 +4,12 @@ import { useState } from 'react';
 import { addDays, format, startOfWeek } from 'date-fns';
 import React from 'react';
 import UserCalendar from './UserCalendar';
+import { useSchedule } from '../contexts/ScheduleContext';
 
 const HOURS = Array.from({ length: 12 }, (_, i) => i + 8); // 8AM to 7PM
 
-// Mock data for user A's schedule
-const USER_A_BUSY_SLOTS = [
-  { day: 0, start: 9, end: 11 }, // Monday 9-11AM
-  { day: 1, start: 14, end: 16 }, // Tuesday 2-4PM
-  { day: 3, start: 12, end: 13 }, // Thursday 12-1PM
-  { day: 4, start: 15, end: 17 }, // Friday 3-5PM
-];
-
 export default function PlanningTab() {
+  const { events, addRequest, addEvent } = useSchedule();
   const [step, setStep] = useState<'email' | 'userB' | 'compare' | 'confirm'>('email');
   const [recipientEmail, setRecipientEmail] = useState('');
   const [userBAvailableSlots, setUserBAvailableSlots] = useState<string[]>([]);
@@ -49,8 +43,8 @@ export default function PlanningTab() {
         // Check if slot is in User B's available slots
         if (slots.includes(slotId)) {
           // Check if slot conflicts with User A's busy slots
-          const isUserABusy = USER_A_BUSY_SLOTS.some(
-            busySlot => busySlot.day === day && hour >= busySlot.start && hour < busySlot.end
+          const isUserABusy = events.some(
+            event => event.day === day && hour >= event.start && hour < event.end
           );
           
           if (!isUserABusy) {
@@ -78,10 +72,46 @@ export default function PlanningTab() {
       return;
     }
     
-    // In a real app, this would send the data to the backend
-    console.log('Sending invitation to:', recipientEmail);
-    console.log('Selected slots:', selectedSlots);
+    // Format the selected slots for the request
+    const formattedSlots = selectedSlots.map(slotId => {
+      const [dayIndex, hourIndex] = slotId.split('-').map(Number);
+      const date = addDays(startDate, dayIndex);
+      const day = format(date, 'EEEE');
+      const dateStr = format(date, 'yyyy-MM-dd');
+      const time = `${hourIndex % 12 || 12}:00 ${hourIndex < 12 ? 'AM' : 'PM'}`;
+      
+      return {
+        day,
+        date: dateStr,
+        time,
+        dayIndex,
+        hourIndex
+      };
+    });
     
+    // Create a new request
+    addRequest({
+      sender: 'user@example.com', // Assuming current user is sender
+      recipient: recipientEmail,
+      status: 'pending',
+      slots: formattedSlots
+    });
+
+    // Also add the selected time slots as pending events to the calendar
+    selectedSlots.forEach(slotId => {
+      const [dayIndex, hourIndex] = slotId.split('-').map(Number);
+      
+      // Add event to calendar
+      addEvent({
+        title: `Meeting with ${recipientEmail}`,
+        day: parseInt(dayIndex),
+        start: parseInt(hourIndex),
+        end: parseInt(hourIndex) + 1, // 1 hour meeting by default
+        confirmed: false // This is a pending event
+      });
+    });
+    
+    // Alert and change step
     alert(`Meeting invitation sent to ${recipientEmail}`);
     setStep('confirm');
   };
@@ -90,8 +120,8 @@ export default function PlanningTab() {
     const slotId = `${dayIndex}-${hour}`;
     const isOverlapping = overlappingSlots.includes(slotId);
     const isSelected = selectedSlots.includes(slotId);
-    const isUserABusy = USER_A_BUSY_SLOTS.some(
-      busySlot => busySlot.day === dayIndex && hour >= busySlot.start && hour < busySlot.end
+    const isUserABusy = events.some(
+      event => event.day === dayIndex && hour >= event.start && hour < event.end
     );
     
     if (isUserABusy) {
@@ -261,7 +291,13 @@ export default function PlanningTab() {
         <div className="mt-6">
           <button
             type="button"
-            onClick={() => setStep('email')}
+            onClick={() => {
+              setRecipientEmail('');
+              setUserBAvailableSlots([]);
+              setOverlappingSlots([]);
+              setSelectedSlots([]);
+              setStep('email');
+            }}
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
           >
             Schedule Another Meeting

@@ -2,32 +2,10 @@
 
 import { useState } from 'react';
 import { format } from 'date-fns';
-
-// Mock data for scheduling requests
-const MOCK_REQUESTS = [
-  {
-    id: '1',
-    sender: 'jane.doe@example.com',
-    status: 'pending',
-    slots: [
-      { day: 'Monday', date: '2023-04-03', time: '10:00 AM' },
-      { day: 'Tuesday', date: '2023-04-04', time: '2:00 PM' },
-      { day: 'Friday', date: '2023-04-07', time: '11:00 AM' },
-    ],
-  },
-  {
-    id: '2',
-    sender: 'john.smith@example.com',
-    status: 'pending',
-    slots: [
-      { day: 'Wednesday', date: '2023-04-05', time: '9:00 AM' },
-      { day: 'Thursday', date: '2023-04-06', time: '4:00 PM' },
-    ],
-  },
-];
+import { useSchedule } from '../contexts/ScheduleContext';
 
 export default function RequestsView() {
-  const [requests, setRequests] = useState(MOCK_REQUESTS);
+  const { requests, updateRequest } = useSchedule();
   const [selectedSlots, setSelectedSlots] = useState<Record<string, string>>({});
   
   const handleAccept = (requestId: string) => {
@@ -36,30 +14,21 @@ export default function RequestsView() {
       return;
     }
     
-    setRequests(prev => 
-      prev.map(req => 
-        req.id === requestId
-          ? { ...req, status: 'accepted' }
-          : req
-      )
-    );
+    // Update the request status and selected slot
+    updateRequest(requestId, {
+      status: 'accepted',
+      selectedSlot: selectedSlots[requestId]
+    });
     
-    // In a real app, this would send the data to the backend
-    console.log(`Accepted request ${requestId} for time slot: ${selectedSlots[requestId]}`);
+    // Alert the user
     alert('Meeting confirmed! A calendar invite has been sent.');
   };
   
   const handleDecline = (requestId: string) => {
-    setRequests(prev => 
-      prev.map(req => 
-        req.id === requestId
-          ? { ...req, status: 'declined' }
-          : req
-      )
-    );
+    // Update the request status
+    updateRequest(requestId, { status: 'declined' });
     
-    // In a real app, this would send the data to the backend
-    console.log(`Declined request ${requestId}`);
+    // Alert the user
     alert('Request declined.');
   };
   
@@ -143,7 +112,7 @@ export default function RequestsView() {
                 <div className="px-4 py-5 sm:p-6">
                   <p className="text-sm text-gray-700">
                     {request.status === 'accepted' 
-                      ? `Meeting confirmed for: ${selectedSlots[request.id] || 'A selected time'}`
+                      ? `Meeting confirmed for: ${request.selectedSlot || selectedSlots[request.id] || 'A selected time'}`
                       : 'This request was declined.'}
                   </p>
                 </div>

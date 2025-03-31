@@ -3,19 +3,13 @@
 import { useState } from 'react';
 import { addDays, format, startOfWeek } from 'date-fns';
 import React from 'react';
-
-// Mock data for current schedule
-const MOCK_SCHEDULE = [
-  { id: '1', title: 'Team Meeting', day: 0, start: 10, end: 11, confirmed: true },
-  { id: '2', title: 'Project Review', day: 1, start: 14, end: 15, confirmed: true },
-  { id: '3', title: 'Client Call', day: 2, start: 11, end: 12, confirmed: true },
-  { id: '4', title: 'Lunch with Alex', day: 3, start: 12, end: 13, confirmed: false },
-  { id: '5', title: 'Product Demo', day: 4, start: 15, end: 16, confirmed: true },
-];
+import { useSchedule } from '../contexts/ScheduleContext';
 
 const HOURS = Array.from({ length: 12 }, (_, i) => i + 8); // 8AM to 7PM
 
 export default function OverviewTab() {
+  const { events } = useSchedule();
+  
   // Calculate the dates for the current week
   const today = new Date();
   const startDate = startOfWeek(today, { weekStartsOn: 1 }); // Start on Monday
@@ -23,7 +17,7 @@ export default function OverviewTab() {
   
   // Function to get event for a specific time slot
   const getEventForSlot = (dayIndex: number, hour: number) => {
-    return MOCK_SCHEDULE.find(event => 
+    return events.find(event => 
       event.day === dayIndex && hour >= event.start && hour < event.end
     );
   };
@@ -70,7 +64,7 @@ export default function OverviewTab() {
               {weekDays.map((_, dayIndex) => (
                 <div
                   key={dayIndex}
-                  className="h-12 rounded-md flex items-center justify-center transition-colors bg-gray-100"
+                  className="h-12 rounded-md flex items-center justify-center transition-colors bg-gray-100 p-0 overflow-hidden"
                 >
                   {renderTimeSlot(dayIndex, hour)}
                 </div>
