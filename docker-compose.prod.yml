@@ -1,32 +1,13 @@
-version: '3'
-
-services:
-  nextjs:
-    build:
-      context: .
-      dockerfile: Dockerfile.prod
-    container_name: quick-schedule-app
-    restart: always
-    # Using a custom port to avoid conflicts with other services
-    expose:
-      - "3000"
-    # Only create an internal network, don't expose ports directly
-    networks:
-      - quick-schedule-network
-
-  nginx:
-    image: nginx:alpine
-    container_name: quick-schedule-nginx
-    restart: always
-    ports:
-      # Map to port 8050 to avoid conflicts with common ports
-      - "8050:80" 
-    volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d
-    depends_on:
-      - nextjs
-    networks:
-      - quick-schedule-network
-
-networks:
-  quick-schedule-network: 
+nginx:
+  image: nginx:alpine
+  container_name: quick-schedule-nginx
+  restart: always
+  ports:
+    # Change this line
+    - "9090:80" 
+  volumes:
+    - ./nginx/conf.d:/etc/nginx/conf.d
+  depends_on:
+    - nextjs
+  networks:
+    - quick-schedule-network
