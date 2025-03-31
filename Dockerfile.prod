@@ -9,6 +9,9 @@ RUN npm install
 # Copy app source
 COPY . .
 
+# Ensure public directory exists
+RUN mkdir -p public
+
 # Build the app
 RUN npm run build
 
