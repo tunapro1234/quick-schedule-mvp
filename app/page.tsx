@@ -41,7 +41,7 @@ export default function Home() {
                   </div>
                   <div className="mt-3 sm:mt-0 sm:ml-3">
                     <Link
-                      href="#how-it-works"
+                      href="/how-it-works"
                       className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 md:py-4 md:text-lg md:px-10"
                     >
                       Learn More
@@ -97,10 +97,10 @@ export default function Home() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                     </svg>
                   </div>
-                  <p className="ml-16 text-lg leading-6 font-medium text-gray-900">2. Send scheduling request</p>
+                  <p className="ml-16 text-lg leading-6 font-medium text-gray-900">2. Compare schedules</p>
                 </dt>
                 <dd className="mt-2 ml-16 text-base text-gray-500">
-                  Share your available times with the person you want to meet.
+                  We find the times that work for both of you automatically.
                 </dd>
               </div>
 
@@ -114,7 +114,7 @@ export default function Home() {
                   <p className="ml-16 text-lg leading-6 font-medium text-gray-900">3. Confirm the meeting</p>
                 </dt>
                 <dd className="mt-2 ml-16 text-base text-gray-500">
-                  They'll select a time that works for them, and your calendars will be updated automatically.
+                  Pick your preferred time and get it synchronized to both calendars.
                 </dd>
               </div>
             </dl>

@@ -1,7 +1,8 @@
 "use client";
 
 import { Tabs } from '../components/Tabs';
-import PlannerView from '../components/PlannerView';
+import OverviewTab from '../components/OverviewTab';
+import PlanningTab from '../components/PlanningTab';
 import RequestsView from '../components/RequestsView';
 
 export default function Dashboard() {
@@ -15,9 +16,14 @@ export default function Dashboard() {
               <Tabs 
                 tabs={[
                   { 
-                    id: 'planner', 
+                    id: 'overview', 
+                    label: 'Overview',
+                    content: <OverviewTab />
+                  },
+                  { 
+                    id: 'planning', 
                     label: 'Planning',
-                    content: <PlannerView />
+                    content: <PlanningTab />
                   },
                   { 
                     id: 'requests', 

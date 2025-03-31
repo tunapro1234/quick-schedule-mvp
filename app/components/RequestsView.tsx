@@ -72,7 +72,7 @@ export default function RequestsView() {
   
   return (
     <div>
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">Scheduling Requests</h2>
+      <h2 className="text-xl font-semibold text-gray-800 mb-4">Meeting Requests</h2>
       
       {requests.length === 0 ? (
         <p className="text-gray-500">No scheduling requests at this time.</p>

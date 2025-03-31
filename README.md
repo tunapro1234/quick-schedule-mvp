@@ -5,8 +5,11 @@ QuickSchedule is a simple, elegant tool to make scheduling between two people ef
 ## Features
 
 - Modern, clean UI built with Next.js and TailwindCSS
-- Planner view for selecting available time slots
-- Requests view for managing and responding to scheduling requests
+- Three-tab dashboard interface:
+  - Overview: See your current schedule at a glance
+  - Planning: Compare calendars and find overlapping availability
+  - Requests: Manage and respond to scheduling requests
+- Interactive scheduling workflow that compares two users' availability
 - Responsive design that works on mobile and desktop
 
 ## Getting Started with Docker
@@ -33,11 +36,21 @@ docker-compose up
 
 The project currently shows TypeScript errors because the type definitions need to be installed. These errors will be resolved automatically when you first run the Docker container, as the npm install process will install all the required dependencies.
 
+## How It Works
+
+1. **View Your Schedule**: The Overview tab shows your current meetings and appointments
+2. **Plan a Meeting**: The Planning tab allows you to:
+   - Enter the email of the person you want to meet with
+   - Compare calendars to find overlapping availability
+   - Select preferred time slots and send an invitation
+3. **Manage Requests**: The Requests tab lets you accept or decline meeting requests from others
+
 ## Development Roadmap
 
 ### Current MVP Features
-- UI for selecting and sharing availability
-- UI for viewing and accepting/declining scheduling requests
+- UI for overview, planning, and requests management
+- Interactive workflow for comparing availability between two users
+- Dedicated "How It Works" page with detailed explanation
 
 ### Next Steps
 1. Add state management and persistence
@@ -57,7 +70,14 @@ The project currently shows TypeScript errors because the type definitions need 
 quick-schedule-mvp/
 ├── app/                    # Next.js App Router
 │   ├── components/         # Reusable UI components
-│   ├── dashboard/          # Dashboard page with planning and requests tabs
+│   │   ├── Header.tsx      # Navigation header
+│   │   ├── OverviewTab.tsx # Current schedule view
+│   │   ├── PlanningTab.tsx # Scheduling workflow
+│   │   ├── RequestsView.tsx# Meeting requests management
+│   │   ├── Tabs.tsx        # Tab navigation component 
+│   │   └── UserCalendar.tsx# Calendar selection for User B
+│   ├── dashboard/          # Dashboard page with three tabs
+│   ├── how-it-works/       # Detailed explanation page
 │   ├── globals.css         # Global styles
 │   ├── layout.tsx          # Root layout
 │   └── page.tsx            # Landing page with hero section
