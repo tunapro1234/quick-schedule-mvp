@@ -8,10 +8,8 @@ RUN npm install
 
 COPY . .
 
-# Use development mode for the MVP
-ENV NODE_ENV=development
+RUN npm run build
 
 EXPOSE 3000
 
-# Use dev server in development
-CMD ["npm", "run", "dev"] 
+CMD ["npm", "start"] 
