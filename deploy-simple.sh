@@ -13,8 +13,8 @@ case "$1" in
     start)
         echo -e "${GREEN}Starting QuickSchedule in production mode...${NC}"
         docker-compose -f docker-compose.simple.yml up -d
-        echo -e "${GREEN}Service started on port 9090${NC}"
-        echo -e "${GREEN}Access your application at: http://quick-schedule.tunapro.xyz:9090${NC}"
+        echo -e "${GREEN}Service started on port 9091${NC}"
+        echo -e "${GREEN}Access your application at: http://quick-schedule.tunapro.xyz:9091${NC}"
         ;;
     stop)
         echo -e "${RED}Stopping QuickSchedule services...${NC}"

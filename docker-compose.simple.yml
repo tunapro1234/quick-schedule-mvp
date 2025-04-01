@@ -8,4 +8,4 @@ services:
     container_name: quick-schedule-app
     restart: always
     ports:
-      - "9090:3000" 
+      - "9091:3000" 
